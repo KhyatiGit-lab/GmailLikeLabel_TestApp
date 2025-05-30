@@ -1,0 +1,6 @@
+@GmailLikeLabel_TestApp_HostAddress = http://localhost:5279
+
+GET {{GmailLikeLabel_TestApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
