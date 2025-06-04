@@ -1,0 +1,89 @@
+<div
+  class="d-flex justify-content-between align-items-center p-3 border-bottom">
+  <h3 class="mb-0">Gmail-Like Labels in ag-Grid</h3>
+  <button class="btn btn-outline-danger" (click)="showLabelForm = true">
+    <i class="bi bi-tags"></i> Manage Labels
+  </button>
+</div>
+
+<div class="popup-backdrop" *ngIf="showLabelForm">
+  <div
+    class="popup-form bg-white rounded shadow p-4 mx-auto"
+    style="width: 90vw; max-width: 1000px; max-height: 90vh; overflow-y: auto">
+    <h5 class="mb-3">Manage Labels</h5>
+    <hr class="text-muted" />
+
+    <h6 class="text-secondary mb-3">Current Labels</h6>
+    <div *ngFor="let label of labels" class="card mb-2">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+          <span
+            class="rounded-circle me-3 border"
+            [style.background]="label.colorHex"
+            style="width: 16px; height: 16px; display: inline-block"
+          >
+          </span>
+          <div>
+            <strong>{{ label.name }}</strong>
+            <div class="text-muted small">{{ label.description }}</div>
+          </div>
+        </div>
+        <div>
+          <button
+            class="btn btn-sm btn-outline-primary me-2"
+            (click)="editLabel(label)">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button
+            class="btn btn-sm btn-outline-danger"
+            (click)="deleteLabel(label.id!)">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-4" style="width: 100%">
+      <div class="card-header">
+        {{ editingLabel ? "Edit Label" : "Add New Label" }}
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Label Name</label>
+          <input
+            class="form-control"
+            [(ngModel)]="newLabel.name"
+            placeholder="Enter label name"
+          />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Label Color</label>
+          <input
+            type="color"
+            [(ngModel)]="newLabel.colorHex"
+            class="form-control form-control-color w-100"
+          />
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Description (optional)</label>
+          <input
+            class="form-control"
+            [(ngModel)]="newLabel.description"
+            placeholder="Enter description"
+          />
+        </div>
+        <div class="d-flex justify-content-end">
+          <button class="btn btn-outline-secondary me-2" (click)="cancelEdit()">
+            Cancel
+          </button>
+          <button class="btn btn-danger" (click)="saveLabel()">
+            {{ editingLabel ? "Update Label" : "Save Label" }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<router-outlet></router-outlet>
