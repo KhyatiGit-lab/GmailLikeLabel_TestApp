@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Label } from '../Models/label.model';
 
 @Injectable({
@@ -10,6 +10,12 @@ export class LabelService {
   private baseUrl = 'https://localhost:7033/api/label';
 
   constructor(private http: HttpClient) {}
+ private labelChangeSubject = new Subject<void>();
+  labelChange$ = this.labelChangeSubject.asObservable();
+
+   notifyLabelChange() {
+    this.labelChangeSubject.next();
+  }
 
   getAllLabels(): Observable<Label[]> {
     return this.http.get<Label[]>(this.baseUrl);

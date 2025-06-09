@@ -117,6 +117,10 @@ export class LabelManagementComponent implements OnInit {
     console.log(this.labels);
     this.loadEmails();
     (window as any).angularComponentRef = this;
+
+    this.labelService.labelChange$.subscribe(() => {
+      this.loadLabels();
+    });
   }
 
   loadLabels() {
@@ -180,12 +184,17 @@ export class LabelManagementComponent implements OnInit {
       alert('Please select at least one email.');
       return;
     }
-
+    const label = this.labels.find((l) => l.id === labelId);
+    const labelName = label ? label.name : 'Label';
     selectedRows.forEach((email) => {
       this.emailService
         .assignLabelsToEmail(email.id, [labelId])
         .subscribe(() => {
           this.loadEmails();
+          this.toastr.success(
+            `Applied "${labelName}" label to ${selectedRows.length} items`,
+            'Label Applied'
+          );
         });
     });
 
@@ -210,12 +219,17 @@ export class LabelManagementComponent implements OnInit {
       alert('Please select at least one email.');
       return;
     }
-
+    const label = this.labels.find((l) => l.id === labelId);
+    const labelName = label ? label.name : 'Label';
     selectedRows.forEach((email) => {
       this.emailService
         .removeLabelFromEmail(email.id, labelId)
         .subscribe(() => {
           this.loadEmails();
+          this.toastr.success(
+            `Removed "${labelName}" label from ${selectedRows.length} items`,
+            'Label Removed'
+          );
         });
     });
 
@@ -225,10 +239,16 @@ export class LabelManagementComponent implements OnInit {
   toggleLabelFilter(label: Label) {
     if (this.filteredLabels.has(label.id!)) {
       this.filteredLabels.delete(label.id!);
-      this.toastr.info(`Showing items with "${label.name}" label`, 'Filter Applied');
+      this.toastr.info(
+        `Showing items with "${label.name}" label`,
+        'Filter Applied'
+      );
     } else {
       this.filteredLabels.add(label.id!);
-       this.toastr.info(`Removing items with "${label.name}" label`, 'Filter Removed');
+      this.toastr.info(
+        `Removing items with "${label.name}" label`,
+        'Filter Removed'
+      );
     }
     this.applyFilters();
   }
@@ -298,13 +318,14 @@ export class LabelManagementComponent implements OnInit {
         const item = (e.target as HTMLElement).closest('a');
         const labelId = Number(item?.dataset['labelId']);
         if (!labelId) return;
-        const labelName = this.labels.find(label => label.id === labelId)?.name || 'Label';
+        const labelName =
+          this.labels.find((label) => label.id === labelId)?.name || 'Label';
         this.emailService
           .assignLabelsToEmail(email.id, [labelId])
           .subscribe(() => {
             this.loadEmails();
             dropdown.remove();
-            this.toastr.success(`Label "${labelName}" removed`, 'Label Added');
+            this.toastr.success(`Label "${labelName}" Added`, 'Label Added');
           });
       });
 
@@ -315,10 +336,11 @@ export class LabelManagementComponent implements OnInit {
       const labelId = Number(target.getAttribute('data-label-id'));
 
       if (!emailId || !labelId) return;
-       const labelName = this.labels.find(label => label.id === labelId)?.name || 'Label';
+      const labelName =
+        this.labels.find((label) => label.id === labelId)?.name || 'Label';
       this.emailService.removeLabelFromEmail(emailId, labelId).subscribe(() => {
         this.loadEmails();
-         this.toastr.success(`Label "${labelName}" removed`, 'Label Removed');
+        this.toastr.success(`Label "${labelName}" removed`, 'Label Removed');
       });
     }
   }
@@ -340,7 +362,8 @@ export class LabelManagementComponent implements OnInit {
       if (target.classList.contains('remove-label-icon')) {
         const emailId = Number(target.getAttribute('data-email-id'));
         const labelId = Number(target.getAttribute('data-label-id'));
-        const labelName = this.labels.find(l => l.id === labelId)?.name || 'Label';
+        const labelName =
+          this.labels.find((l) => l.id === labelId)?.name || 'Label';
         if (!emailId || !labelId) return;
 
         this.emailService

@@ -5,7 +5,7 @@ import { Label } from './Models/label.model';
 import { LabelService } from './Services/label.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { ToastrService } from 'ngx-toastr';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -20,7 +20,10 @@ export class AppComponent {
   showLabelForm = false;
   editingLabel: Label | null = null;
 
-  constructor(private labelService: LabelService) {}
+  constructor(
+    private labelService: LabelService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.loadLabels();
@@ -44,6 +47,9 @@ export class AppComponent {
       this.labelService.createLabel(labelToSend).subscribe({
         next: () => {
           this.loadLabels();
+          this.labelService.notifyLabelChange();
+          this.toastr.success(`Label "${labelToSend.name}" created`);
+
           this.resetForm();
         },
         error: (err) => {
@@ -55,6 +61,8 @@ export class AppComponent {
       this.labelService.updateLabel(this.newLabel.id, labelToSend).subscribe({
         next: () => {
           this.loadLabels();
+          this.toastr.success(`Label "${labelToSend.name}" updated`);
+          this.labelService.notifyLabelChange();
           this.resetForm();
         },
         error: (err) => {
@@ -69,17 +77,22 @@ export class AppComponent {
     this.editingLabel = label;
     this.newLabel = { ...label };
     this.showLabelForm = true;
+    this.labelService.notifyLabelChange();
   }
 
   deleteLabel(id: number) {
-  if (confirm('Are you sure you want to delete this label?')) {
-    this.labelService.deleteLabel(id).subscribe({
-      next: () => this.loadLabels(),
-      error: () => alert('Delete failed.'),
-    });
+    if (confirm('Are you sure you want to delete this label?')) {
+      this.labelService.deleteLabel(id).subscribe({
+        next: () => {
+          this.loadLabels();
+          const label = this.labels.find((l) => l.id === id);
+          this.toastr.success(`Label "${label?.name}" deleted`);
+          this.labelService.notifyLabelChange();
+        },
+        error: () => alert('Delete failed.'),
+      });
+    }
   }
-}
-
 
   resetForm() {
     this.newLabel = { name: '', description: '', colorHex: '#cccccc' };
@@ -89,6 +102,6 @@ export class AppComponent {
   cancelEdit() {
     this.showLabelForm = false;
     this.resetForm();
-    this.loadLabels()
+    this.loadLabels();
   }
 }
